@@ -1,9 +1,11 @@
 #include "database.h"
 #include "debug.h"
+#include "recorder.h"
 
 #include <sstream>
 #include <random>
 #include <ctime>
+
 
 
 void debug()
@@ -81,6 +83,55 @@ void test_Item()
 	cout << one;
 	cout << one.print() << endl;
 
+}
+
+void test_History()
+{
+	using std::cout;
+	using std::endl;
+
+
+	std::shared_ptr<Library> pdb = std::make_shared<Library>("0.csv");
+	History his(pdb);
+
+	pdb->add(Item(10, "5", 1, 1, 1));
+	pdb->add(Item(9, "4", 1, 1, 1));
+	cout << "add item complete" << endl;
+	his.log("add 10,1,1,1,5");
+	cout << "log complete" << endl;
+	his.show();
+	pdb->print();
+	cout << "going to undo" << endl;
+	his.undo();
+	cout << "undo complete" << endl;
+	pdb->print();
+}
+
+void test_Record()
+{
+	using std::cout;
+	using std::endl;
+
+	std::shared_ptr<Library> pdb = std::make_shared<Library>("0.csv");
+
+	pdb->move(10, 1);
+	pdb->add(Item(10, "5", 1, 1, 1));
+	pdb->add(Item(9, "4", 1, 1, 1));
+	//cout << "add item complete" << endl;
+	pdb->print();
+	
+	//Record re0("add 10,1,1,1,5", pdb);
+	//cout << "init record(add) complete" << endl;
+	//re0.refrain(pdb);
+	//cout << "refrain complete" << endl;
+	Record re1("move 3 10", pdb);
+	cout << "init record(move) complete" << endl;
+	pdb->move(10, 3);
+	cout << "move item complete" << endl;
+	pdb->print();
+	re1.refrain(pdb);
+	cout << "refrain complete" << endl;
+	pdb->print();
 }
 
 Item ramdom_creat(int id)

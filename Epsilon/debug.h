@@ -9,6 +9,10 @@ void test_Library();
 
 void test_Item();
 
+void test_History();
+
+void test_Record();
+
 Item ramdom_creat(int id);
 
 #endif
