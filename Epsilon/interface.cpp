@@ -3,8 +3,10 @@
 #include <sstream>
 #include <vector>
 #include <iterator>
+#include <memory>
 
 #include "debug.h"
+#include "recorder.h"
 
 void surface()
 {
@@ -16,9 +18,11 @@ void surface()
 	using std::istringstream;
 	using std::stoi;
 
-	//debug();
-
-	Library db("test.csv");
+	
+	std::shared_ptr<Library> pdb = std::make_shared<Library>("test.csv");
+	History his(pdb);
+	
+	
 
 	string input;
 	while (std::getline(cin, input))
@@ -42,36 +46,51 @@ void surface()
 		{
 			if (limb.size() == 1)
 			{
-				db.print();
+				pdb->print();
 			}
 			else if (limb.size() == 3)
 			{
-				db.print(limb[1], limb[2]);
+				pdb->print(limb[1], limb[2]);
+			}
+		}
+		else if (limb[0] == "show")
+		{
+			his.show();
+		}
+		else if (limb[0] == "undo")
+		{
+			if (limb.size() == 1)
+			{
+				his.undo();
+			}
+			else if (limb.size() == 2)
+			{
+				his.undo(stoi(limb[1]));
 			}
 		}
 		else if (limb[0] == "load")
 		{
 			if (limb.size() == 1)
 			{
-				limb.push_back(db.file());
+				limb.push_back(pdb->file());
 			}
 			else
 			{
-				db.file(limb[1]);
+				pdb->file(limb[1]);
 			}
-			db.load(limb[1]);
+			pdb->load(limb[1]);
 		}
 		else if (limb[0] == "save")
 		{
 			if (limb.size() == 1)
 			{
-				limb.push_back(db.file());
+				limb.push_back(pdb->file());
 			}
 			else
 			{
-				db.file(limb[1]);
+				pdb->file(limb[1]);
 			}
-			db.save(limb[1]);
+			pdb->save(limb[1]);
 		}
 		else if (limb.size() == 2)
 		{
@@ -85,6 +104,7 @@ void surface()
 			istringstream ins(limb[1]);
 			if (*limb.cbegin() == "add")
 			{
+				his.log(input);
 				int identify, type, status, location;
 				string information;
 
@@ -98,14 +118,15 @@ void surface()
 
 				Item one(identify, information, type, status, location);
 				one.show();
-				db.add(one);
+				pdb->add(one);
 			}
 			else if (*limb.cbegin() == "del")
 			{
+				his.log(input);
 				int id;
 				while (ins >> id)
 				{
-					db.del(id);
+					pdb->del(id);
 				}
 			}
 		}
@@ -126,25 +147,26 @@ void surface()
 				trgs.push_back(id);
 			}
 
+			his.log(input);
 			if (*limb.cbegin() == "move")
 			{
 				for (auto id : trgs)
 				{
-					db.move(id, stoi(limb[1]));
+					pdb->move(id, stoi(limb[1]));
 				}
 			}
 			else if (*limb.cbegin() == "slip")
 			{
 				for (auto id : trgs)
 				{
-					db.slip(id, stoi(limb[1]));
+					pdb->slip(id, stoi(limb[1]));
 				}
 			}
 			else if (*limb.cbegin() == "edit")
 			{
 				for (auto id : trgs)
 				{
-					db.edit(id, limb[1]);
+					pdb->edit(id, limb[1]);
 				}
 			}
 		}
